@@ -5,7 +5,7 @@ const path = require('path');
 const DB_CONFIG = {
   path: path.join(__dirname, '../restaurant.db'),
   mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-  verbose: process.env.NODE_ENV === 'development'
+  verbose: process.env.NODE_ENV === 'development',
 };
 
 // 資料庫連接池配置
@@ -13,11 +13,11 @@ const POOL_CONFIG = {
   max: 10,
   min: 2,
   acquire: 30000,
-  idle: 10000
+  idle: 10000,
 };
 
 // 創建資料庫連接
-function createDatabase() {
+function createDatabase () {
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(DB_CONFIG.path, DB_CONFIG.mode, (err) => {
       if (err) {
@@ -28,22 +28,22 @@ function createDatabase() {
         resolve(db);
       }
     });
-    
+
     // 啟用 WAL 模式以提升效能
     db.run('PRAGMA journal_mode = WAL');
     db.run('PRAGMA synchronous = NORMAL');
     db.run('PRAGMA cache_size = 10000');
     db.run('PRAGMA temp_store = MEMORY');
-    
+
     return db;
   });
 }
 
 // 初始化資料庫表結構
-function initDatabase(db) {
+function initDatabase (db) {
   return new Promise((resolve, reject) => {
     console.log('📊 初始化資料庫表結構...');
-    
+
     const tables = [
       // 顧客資料表
       `CREATE TABLE IF NOT EXISTS customers (
@@ -114,7 +114,7 @@ function initDatabase(db) {
         sort_order INTEGER DEFAULT 0,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-      )`
+      )`,
     ];
 
     // 創建索引以提升查詢效能
@@ -125,7 +125,7 @@ function initDatabase(db) {
       'CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)',
       'CREATE INDEX IF NOT EXISTS idx_tables_status ON tables(status)',
       'CREATE INDEX IF NOT EXISTS idx_holidays_date ON holidays(date)',
-      'CREATE INDEX IF NOT EXISTS idx_time_slots_active ON time_slots(is_active)'
+      'CREATE INDEX IF NOT EXISTS idx_time_slots_active ON time_slots(is_active)',
     ];
 
     db.serialize(() => {
@@ -172,7 +172,7 @@ function initDatabase(db) {
           ('B3', 4, 'available', 'main', 6),
           ('C1', 6, 'available', 'main', 7),
           ('C2', 6, 'available', 'main', 8)
-        `
+        `,
       ];
 
       defaultData.forEach((sql, index) => {
@@ -200,5 +200,5 @@ module.exports = {
   createDatabase,
   initDatabase,
   DB_CONFIG,
-  POOL_CONFIG
-}; 
+  POOL_CONFIG,
+};

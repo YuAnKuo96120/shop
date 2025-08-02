@@ -7,6 +7,8 @@ module.exports = {
     /onAfterSetupMiddleware/,
     /onBeforeSetupMiddleware/,
     /fs\.F_OK/,
+    /DEP0176/,
+    /DEP_WEBPACK_DEV_SERVER/,
   ],
   
   // 其他配置

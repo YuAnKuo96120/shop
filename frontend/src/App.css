@@ -1,0 +1,731 @@
+body {
+  margin: 0;
+  font-family: 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 32px;
+  max-width: 420px;
+  width: 100%;
+  margin: 24px auto;
+  box-sizing: border-box;
+}
+
+h2 {
+  text-align: center;
+  color: #3b3b3b;
+  margin-bottom: 24px;
+  letter-spacing: 2px;
+  font-size: 1.5rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+input, textarea {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  background: #f9fafb;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus {
+  border: 2px solid #6366f1;
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+button[type="submit"] {
+  margin-top: 8px;
+  padding: 16px 0;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+button[type="submit"]:hover {
+  background: linear-gradient(90deg, #60a5fa 0%, #6366f1 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+}
+
+button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+button[type="submit"]:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 日期選擇器優化 */
+.date-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.date-header {
+  display: flex;
+  gap: 8px;
+  font-weight: 600;
+  color: #6366f1;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.date-header > div {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+}
+
+.date-week {
+  display: flex;
+  gap: 6px;
+  min-height: 48px;
+}
+
+.date-button {
+  flex: 1;
+  min-height: 48px;
+  padding: 6px 4px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  white-space: pre-line;
+  position: relative;
+  min-width: 0;
+}
+
+.date-button:hover {
+  border-color: #6366f1;
+  background: #f0f4ff;
+}
+
+.date-button.selected {
+  border: 2px solid #6366f1;
+  background: linear-gradient(135deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.date-button.holiday {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+  opacity: 0.8;
+}
+
+.date-button.holiday:hover {
+  opacity: 1;
+}
+
+.date-button:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #d1d5db;
+}
+
+.holiday-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #ef4444;
+  color: white;
+  font-size: 8px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* 時間選擇器優化 */
+.time-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.time-row {
+  display: flex;
+  gap: 8px;
+}
+
+.time-button {
+  flex: 1;
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-button:hover {
+  border-color: #6366f1;
+  background: #f0f4ff;
+}
+
+.time-button.selected {
+  border: 2px solid #6366f1;
+  background: linear-gradient(135deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* 餐桌選擇器優化 */
+.table-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.table-info {
+  font-size: 0.9rem;
+  color: #6b7280;
+  background: #f9fafb;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 4px solid #6366f1;
+}
+
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.table-button {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  text-align: center;
+}
+
+.table-button:hover {
+  border-color: #6366f1;
+  background: #f0f4ff;
+}
+
+.table-button.selected {
+  border: 2px solid #6366f1;
+  background: linear-gradient(135deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.table-button:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  border-color: #d1d5db;
+}
+
+.table-status {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.table-status-bottom {
+  position: absolute;
+  bottom: -4px;
+  left: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+}
+
+/* 錯誤訊息優化 */
+.error-message {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border-radius: 8px;
+  border-left: 4px solid #ef4444;
+}
+
+.success-message {
+  color: #059669;
+  text-align: center;
+  margin-top: 16px;
+  padding: 12px;
+  background: #f0fdf4;
+  border-radius: 8px;
+  border-left: 4px solid #059669;
+}
+
+/* 訂位資訊卡片優化 */
+.reservation-info {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px auto 0;
+  max-width: 360px;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+}
+
+.reservation-info h4 {
+  margin: 0 0 12px 0;
+  color: #6366f1;
+  font-size: 1.1rem;
+}
+
+.reservation-info > div {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+/* 側邊欄優化 */
+.sidebar-fixed {
+  position: fixed;
+  top: 50%;
+  right: 32px;
+  transform: translateY(-50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 24px 18px;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+.sidebar-section {
+  text-align: center;
+  min-width: 220px;
+}
+
+.sidebar-section h3 {
+  color: #4285F4;
+  font-weight: 700;
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #1877f3;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.social-link:hover {
+  background: #f0f4ff;
+  transform: translateY(-1px);
+}
+
+.map-container {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(66,133,244,0.08);
+}
+
+.map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: #4285F4;
+  font-weight: 600;
+  font-size: 16px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.map-link:hover {
+  background: #f0f4ff;
+  transform: translateY(-1px);
+}
+
+/* 模態框優化 */
+.modal-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  min-width: 280px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin-bottom: 16px;
+  font-size: 1.3rem;
+}
+
+.modal-info {
+  text-align: left;
+  margin: 0 auto 20px;
+  max-width: 260px;
+}
+
+.modal-info > div {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-button {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  min-width: 80px;
+}
+
+.modal-button.primary {
+  background: linear-gradient(135deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.modal-button.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+}
+
+.modal-button.secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.modal-button.secondary:hover {
+  background: #e5e7eb;
+}
+
+/* 響應式設計 */
+@media (max-width: 900px) {
+  .sidebar-fixed {
+    position: static;
+    transform: none;
+    right: 0;
+    top: auto;
+    margin: 24px auto 0 auto;
+    box-shadow: none;
+    padding: 0;
+    background: transparent;
+    backdrop-filter: none;
+    max-width: 100%;
+  }
+  
+  .sidebar-section {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .social-link {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 16px;
+  }
+  
+  .map-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .map-container iframe {
+    width: 100% !important;
+    height: 200px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .App {
+    padding: 8px;
+    justify-content: flex-start;
+    min-height: auto;
+  }
+  
+  .card {
+    padding: 20px;
+    max-width: 100%;
+    margin: 16px 0;
+    border-radius: 12px;
+  }
+  
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+  }
+  
+  form {
+    gap: 16px;
+  }
+  
+  input, textarea {
+    font-size: 16px;
+    padding: 14px 16px;
+    min-height: 52px;
+  }
+  
+  button[type="submit"] {
+    padding: 16px 0;
+    min-height: 52px;
+    font-size: 16px;
+  }
+  
+  .date-header > div {
+    font-size: 0.8rem;
+    padding: 6px 2px;
+  }
+  
+  .date-button {
+    font-size: 0.8rem;
+    min-height: 44px;
+  }
+  
+  .time-button {
+    font-size: 0.9rem;
+    min-height: 44px;
+    padding: 10px 6px;
+  }
+  
+  .table-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 6px;
+  }
+  
+  .table-button {
+    font-size: 0.85rem;
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    min-width: 260px;
+  }
+  
+  .modal-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .modal-button {
+    width: 100%;
+  }
+  
+  .reservation-info {
+    padding: 16px;
+    margin: 16px auto 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 16px;
+  }
+  
+  h2 {
+    font-size: 1.3rem;
+  }
+  
+  .date-button {
+    min-height: 40px;
+    font-size: 0.75rem;
+  }
+  
+  .time-button {
+    min-height: 40px;
+    font-size: 0.85rem;
+  }
+  
+  .table-button {
+    min-height: 40px;
+    font-size: 0.8rem;
+  }
+  
+  .sidebar-section h3 {
+    font-size: 16px;
+  }
+  
+  .social-link {
+    font-size: 14px;
+  }
+}
+
+/* 觸控優化 */
+@media (hover: none) and (pointer: coarse) {
+  .date-button,
+  .time-button,
+  .table-button,
+  .modal-button {
+    min-height: 44px;
+  }
+  
+  input, textarea {
+    min-height: 44px;
+  }
+  
+  button[type="submit"] {
+    min-height: 44px;
+  }
+}
+
+/* 滾動條優化 */
+::-webkit-scrollbar {
+  width: 8px;
+  background: #e0e7ff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #a5b4fc;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #818cf8;
+}
+
+/* 載入動畫 */
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+}
+
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  border-top-color: #6366f1;
+  animation: spin 1s ease-in-out infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

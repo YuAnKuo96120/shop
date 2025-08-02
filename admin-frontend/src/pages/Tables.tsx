@@ -124,7 +124,7 @@ const Tables: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-              const res = await fetch(`${config.API_URL}/admin/tables`);
+              const res = await fetch(`${config.API_URL}/api/admin/tables`);
       const data = await res.json();
       setTables(data);
     } catch {
@@ -151,8 +151,26 @@ const Tables: React.FC = () => {
   
   const handleDelete = async (id: number) => {
     if (!window.confirm('確定要刪除這張餐桌嗎？')) return;
-          await fetch(`${config.API_URL}/admin/tables/${id}`, { method: 'DELETE' });
+          await fetch(`${config.API_URL}/api/admin/tables/${id}`, { method: 'DELETE' });
     fetchTables();
+  };
+
+  const handleDeleteAll = async () => {
+    if (!window.confirm('⚠️ 警告：此操作將刪除所有餐桌！\n\n確定要刪除全部餐桌嗎？此操作無法撤銷！')) return;
+    
+    try {
+      const response = await fetch(`${config.API_URL}/api/admin/tables`, { method: 'DELETE' });
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`✅ ${result.message}`);
+        fetchTables();
+      } else {
+        alert('❌ 刪除失敗：' + (result.error || '未知錯誤'));
+      }
+    } catch (error) {
+      alert('❌ 刪除失敗：' + error);
+    }
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -162,7 +180,7 @@ const Tables: React.FC = () => {
       return;
     }
     if (editTable) {
-              await fetch(`${config.API_URL}/admin/tables/${editTable.id}`, {
+              await fetch(`${config.API_URL}/api/admin/tables/${editTable.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
@@ -170,7 +188,7 @@ const Tables: React.FC = () => {
     } else {
       // 新增時設定排序順序為最後
       const maxSortOrder = Math.max(...tables.map(t => t.sort_order || 0), 0);
-                             await fetch(`${config.API_URL}/admin/tables`, {
+                             await fetch(`${config.API_URL}/api/admin/tables`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, sort_order: maxSortOrder + 1 })
@@ -202,7 +220,7 @@ const Tables: React.FC = () => {
 
         // 更新資料庫中的排序順序
         const updatePromises = updatedTables.map((table) => 
-          fetch(`${config.API_URL}/admin/tables/${table.id}`, {
+          fetch(`${config.API_URL}/api/admin/tables/${table.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sort_order: table.sort_order })
@@ -266,7 +284,21 @@ const Tables: React.FC = () => {
           </div>
         </DndContext>
       )}
-      <div style={{ marginTop: 24, textAlign: 'right' }}>
+      <div style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button 
+          onClick={handleDeleteAll}
+          style={{ 
+            background: '#dc2626', 
+            color: 'white', 
+            border: 'none', 
+            padding: '8px 16px', 
+            borderRadius: '6px', 
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          🗑️ 刪除全部餐桌
+        </button>
         <button onClick={openAdd}>新增餐桌</button>
       </div>
       

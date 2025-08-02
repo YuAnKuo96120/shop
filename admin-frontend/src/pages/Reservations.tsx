@@ -100,8 +100,8 @@ const Reservations: React.FC = () => {
     setError('');
     try {
               const [reservationsRes, holidaysRes] = await Promise.all([
-            fetch(`${config.API_URL}/admin/reservations`),
-    fetch(`${config.API_URL}/holidays`)
+            fetch(`${config.API_URL}/api/admin/reservations`),
+    fetch(`${config.API_URL}/api/holidays`)
         ]);
       
       const reservationsJson = await reservationsRes.json();
@@ -121,7 +121,7 @@ const Reservations: React.FC = () => {
 
   const handleArrive = async (id: number) => {
     try {
-      const res = await fetch(`${config.API_URL}/reservations/${id}/arrive`, { method: 'POST' });
+      const res = await fetch(`${config.API_URL}/api/reservations/${id}/arrive`, { method: 'POST' });
       if (res.ok) {
         setMessage('標記到店成功！');
         setTimeout(() => setMessage(''), 3000);
@@ -142,7 +142,7 @@ const Reservations: React.FC = () => {
     }
     
     try {
-      const res = await fetch(`${config.API_URL}/reservations/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${config.API_URL}/api/reservations/${id}`, { method: 'DELETE' });
       if (res.ok) {
         setMessage('取消訂位成功！');
         setTimeout(() => setMessage(''), 3000);
@@ -168,7 +168,7 @@ const Reservations: React.FC = () => {
     }
     
     try {
-      const res = await fetch(`${config.API_URL}/admin/reservations/all`, { method: 'DELETE' });
+      const res = await fetch(`${config.API_URL}/api/admin/reservations/all`, { method: 'DELETE' });
       if (res.ok) {
         setMessage('已成功刪除所有訂位記錄！');
         setTimeout(() => setMessage(''), 5000);

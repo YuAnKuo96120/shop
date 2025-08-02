@@ -8,19 +8,19 @@ const securityConfig = {
   helmet: {
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https:"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        connectSrc: ["'self'"],
-        frameSrc: ["'self'", "https://www.google.com"],
-        objectSrc: ["'none'"],
-        upgradeInsecureRequests: []
-      }
+        defaultSrc: ['\'self\''],
+        styleSrc: ['\'self\'', '\'unsafe-inline\'', 'https://fonts.googleapis.com'],
+        fontSrc: ['\'self\'', 'https://fonts.gstatic.com'],
+        imgSrc: ['\'self\'', 'data:', 'https:'],
+        scriptSrc: ['\'self\'', '\'unsafe-inline\''],
+        connectSrc: ['\'self\''],
+        frameSrc: ['\'self\'', 'https://www.google.com'],
+        objectSrc: ['\'none\''],
+        upgradeInsecureRequests: [],
+      },
     },
     crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   },
 
   // 速率限制配置
@@ -29,22 +29,22 @@ const securityConfig = {
     max: 100, // 每個 IP 在 windowMs 內最多 100 個請求
     message: {
       error: '請求過於頻繁，請稍後再試',
-      retryAfter: '15 分鐘'
+      retryAfter: '15 分鐘',
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
   },
 
   // API 速率限制（更嚴格）
   apiRateLimit: {
     windowMs: 15 * 60 * 1000, // 15 分鐘
-    max: 50, // 每個 IP 在 windowMs 內最多 50 個 API 請求
+    max: 1000, // 暫時增加限制用於測試
     message: {
       error: 'API 請求過於頻繁，請稍後再試',
-      retryAfter: '15 分鐘'
+      retryAfter: '15 分鐘',
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
   },
 
   // 訂位 API 速率限制（防止濫用）
@@ -53,24 +53,24 @@ const securityConfig = {
     max: 5, // 每個 IP 在 1 小時內最多 5 個訂位請求
     message: {
       error: '訂位請求過於頻繁，請稍後再試',
-      retryAfter: '1 小時'
+      retryAfter: '1 小時',
     },
     standardHeaders: true,
-    legacyHeaders: false
-  }
+    legacyHeaders: false,
+  },
 };
 
 // 創建速率限制器
-function createRateLimiters() {
+function createRateLimiters () {
   return {
     general: rateLimit(securityConfig.rateLimit),
     api: rateLimit(securityConfig.apiRateLimit),
-    reservation: rateLimit(securityConfig.reservationRateLimit)
+    reservation: rateLimit(securityConfig.reservationRateLimit),
   };
 }
 
 // 配置安全中間件
-function configureSecurity(app) {
+function configureSecurity (app) {
   // 啟用壓縮
   app.use(compression({
     level: 6,
@@ -80,7 +80,7 @@ function configureSecurity(app) {
         return false;
       }
       return compression.filter(req, res);
-    }
+    },
   }));
 
   // 配置 Helmet
@@ -100,7 +100,7 @@ function configureSecurity(app) {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     res.header('Access-Control-Max-Age', '86400'); // 24 小時
-    
+
     if (req.method === 'OPTIONS') {
       res.sendStatus(200);
     } else {
@@ -119,27 +119,27 @@ function configureSecurity(app) {
   });
 
   // 錯誤處理中間件
-  app.use((err, req, res, next) => {
+  app.use((err, req, res, _next) => {
     console.error('錯誤:', err);
-    
+
     // 根據錯誤類型返回適當的響應
     if (err.type === 'entity.parse.failed') {
-      return res.status(400).json({ 
-        error: '請求格式錯誤', 
-        message: '請檢查 JSON 格式是否正確' 
+      return res.status(400).json({
+        error: '請求格式錯誤',
+        message: '請檢查 JSON 格式是否正確',
       });
     }
-    
+
     if (err.type === 'entity.too.large') {
-      return res.status(413).json({ 
-        error: '請求過大', 
-        message: '請求內容超過允許的大小' 
+      return res.status(413).json({
+        error: '請求過大',
+        message: '請求內容超過允許的大小',
       });
     }
-    
-    res.status(500).json({ 
-      error: '內部伺服器錯誤', 
-      message: process.env.NODE_ENV === 'development' ? err.message : '請稍後再試'
+
+    res.status(500).json({
+      error: '內部伺服器錯誤',
+      message: process.env.NODE_ENV === 'development' ? err.message : '請稍後再試',
     });
   });
 }
@@ -147,5 +147,5 @@ function configureSecurity(app) {
 module.exports = {
   configureSecurity,
   securityConfig,
-  createRateLimiters
-}; 
+  createRateLimiters,
+};

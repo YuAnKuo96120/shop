@@ -20,14 +20,14 @@ app.use(express.static(path.join(__dirname)));
 let db = null;
 
 // 初始化應用
-async function initializeApp() {
+async function initializeApp () {
   try {
     // 創建資料庫連接
     db = await createDatabase();
-    
+
     // 初始化資料庫
     await initDatabase(db);
-    
+
     // 啟動伺服器
     startServer();
   } catch (error) {
@@ -43,11 +43,11 @@ app.get('/', (req, res) => {
 
 // 健康檢查端點
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    memory: process.memoryUsage()
+    memory: process.memoryUsage(),
   });
 });
 
@@ -61,9 +61,9 @@ app.get('/api', (req, res) => {
       tables: '/api/admin/tables',
       holidays: '/api/holidays',
       timeSlots: '/api/time-slots',
-      health: '/health'
+      health: '/health',
     },
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -71,7 +71,7 @@ app.get('/api', (req, res) => {
 app.post('/api/reservations', async (req, res) => {
   try {
     const { name, phone, date, time, people, table_id, email = '', note = '' } = req.body;
-    
+
     // 驗證必填欄位
     if (!name || !phone || !date || !time || !people) {
       return res.status(400).json({ error: '請填寫完整資料' });
@@ -79,8 +79,8 @@ app.post('/api/reservations', async (req, res) => {
 
     // 驗證人數限制
     if (people >= 5) {
-      return res.status(400).json({ 
-        error: '5人以上訂位請聯繫餐廳，我們將為您安排合適的座位，電話0900000000' 
+      return res.status(400).json({
+        error: '5人以上訂位請聯繫餐廳，我們將為您安排合適的座位，電話0900000000',
       });
     }
 
@@ -107,11 +107,11 @@ app.post('/api/reservations', async (req, res) => {
     if (table_id) {
       const tables = await cachedFunctions.getTables(db);
       const table = tables.find(t => t.id === table_id && t.status === 'available');
-      
+
       if (!table) {
         return res.status(400).json({ error: '餐桌不存在或不可用' });
       }
-      
+
       // 驗證餐桌容量
       if (people === 3 && table.capacity !== 4) {
         return res.status(400).json({ error: '3人訂位只能選擇4人桌' });
@@ -122,7 +122,7 @@ app.post('/api/reservations', async (req, res) => {
       if (people === 4 && table.capacity !== 4) {
         return res.status(400).json({ error: '4人訂位只能選擇4人桌' });
       }
-      
+
       // 檢查時段衝突
       const conflictCheck = await new Promise((resolve, reject) => {
         db.get(
@@ -131,10 +131,10 @@ app.post('/api/reservations', async (req, res) => {
           (err, result) => {
             if (err) reject(err);
             else resolve(result.count > 0);
-          }
+          },
         );
       });
-      
+
       if (conflictCheck) {
         return res.status(400).json({ error: '該餐桌在此時段已被預訂' });
       }
@@ -153,22 +153,22 @@ app.post('/api/reservations', async (req, res) => {
       customerId = customerCheck.id;
     } else {
       const newCustomer = await new Promise((resolve, reject) => {
-        db.run('INSERT INTO customers (name, phone, email) VALUES (?, ?, ?)', 
-          [name, phone, email], function(err) {
-          if (err) reject(err);
-          else resolve(this.lastID);
-        });
+        db.run('INSERT INTO customers (name, phone, email) VALUES (?, ?, ?)',
+          [name, phone, email], function (err) {
+            if (err) reject(err);
+            else resolve(this.lastID);
+          });
       });
       customerId = newCustomer;
     }
 
     // 創建訂位
     const reservation = await new Promise((resolve, reject) => {
-      db.run(`INSERT INTO reservations (customer_id, table_id, date, time, people, note) VALUES (?, ?, ?, ?, ?, ?)`,
-        [customerId, table_id || null, date, time, people, note], function(err) {
-        if (err) reject(err);
-        else resolve({ id: this.lastID });
-      });
+      db.run('INSERT INTO reservations (customer_id, table_id, date, time, people, note) VALUES (?, ?, ?, ?, ?, ?)',
+        [customerId, table_id || null, date, time, people, note], function (err) {
+          if (err) reject(err);
+          else resolve({ id: this.lastID });
+        });
     });
 
     // 清除相關快取
@@ -201,11 +201,11 @@ app.get('/api/reservations', async (req, res) => {
     }
 
     const reservations = await new Promise((resolve, reject) => {
-      db.all('SELECT * FROM reservations WHERE customer_id = ? ORDER BY date DESC, time DESC', 
+      db.all('SELECT * FROM reservations WHERE customer_id = ? ORDER BY date DESC, time DESC',
         [customer.id], (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
+          if (err) reject(err);
+          else resolve(rows);
+        });
     });
 
     res.json(reservations);
@@ -240,7 +240,7 @@ app.get('/api/admin/reservations', async (req, res) => {
 app.get('/api/check-table-availability', async (req, res) => {
   try {
     const { date, time } = req.query;
-    
+
     if (!date || !time) {
       return res.status(400).json({ error: '請提供日期和時段' });
     }
@@ -273,11 +273,11 @@ app.post('/api/admin/tables', async (req, res) => {
     }
 
     const result = await new Promise((resolve, reject) => {
-      db.run('INSERT INTO tables (name, capacity, status, area, sort_order) VALUES (?, ?, ?, ?, ?)', 
-        [name, capacity, status || 'available', area || 'main', sort_order || null], function(err) {
-        if (err) reject(err);
-        else resolve({ id: this.lastID });
-      });
+      db.run('INSERT INTO tables (name, capacity, status, area, sort_order) VALUES (?, ?, ?, ?, ?)',
+        [name, capacity, status || 'available', area || 'main', sort_order || null], function (err) {
+          if (err) reject(err);
+          else resolve({ id: this.lastID });
+        });
     });
 
     cacheInvalidators.invalidateTables();
@@ -295,11 +295,11 @@ app.put('/api/admin/tables/:id', async (req, res) => {
     const { id } = req.params;
 
     const result = await new Promise((resolve, reject) => {
-      db.run('UPDATE tables SET name = ?, capacity = ?, status = ?, area = ?, sort_order = ? WHERE id = ?', 
-        [name, capacity, status, area || 'main', sort_order || null, id], function(err) {
-        if (err) reject(err);
-        else resolve({ changes: this.changes });
-      });
+      db.run('UPDATE tables SET name = ?, capacity = ?, status = ?, area = ?, sort_order = ? WHERE id = ?',
+        [name, capacity, status, area || 'main', sort_order || null, id], function (err) {
+          if (err) reject(err);
+          else resolve({ changes: this.changes });
+        });
     });
 
     if (result.changes === 0) {
@@ -320,7 +320,7 @@ app.delete('/api/admin/tables/:id', async (req, res) => {
     const { id } = req.params;
 
     const result = await new Promise((resolve, reject) => {
-      db.run('DELETE FROM tables WHERE id = ?', [id], function(err) {
+      db.run('DELETE FROM tables WHERE id = ?', [id], function (err) {
         if (err) reject(err);
         else resolve({ changes: this.changes });
       });
@@ -338,6 +338,28 @@ app.delete('/api/admin/tables/:id', async (req, res) => {
   }
 });
 
+// 刪除所有餐桌（管理員功能）
+app.delete('/api/admin/tables', async (req, res) => {
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.run('DELETE FROM tables', function (err) {
+        if (err) reject(err);
+        else resolve({ changes: this.changes });
+      });
+    });
+
+    cacheInvalidators.invalidateTables();
+    res.json({ 
+      success: true, 
+      message: `已刪除 ${result.changes} 張餐桌`,
+      deletedCount: result.changes 
+    });
+  } catch (error) {
+    console.error('刪除所有餐桌失敗:', error);
+    res.status(500).json({ error: '刪除所有餐桌失敗' });
+  }
+});
+
 // 更新桌位座標
 app.patch('/api/admin/tables/:id/position', async (req, res) => {
   try {
@@ -345,7 +367,7 @@ app.patch('/api/admin/tables/:id/position', async (req, res) => {
     const { id } = req.params;
 
     const result = await new Promise((resolve, reject) => {
-      db.run('UPDATE tables SET x = ?, y = ? WHERE id = ?', [x, y, id], function(err) {
+      db.run('UPDATE tables SET x = ?, y = ? WHERE id = ?', [x, y, id], function (err) {
         if (err) reject(err);
         else resolve({ changes: this.changes });
       });
@@ -369,7 +391,7 @@ app.delete('/api/reservations/:id', async (req, res) => {
     const { id } = req.params;
 
     const result = await new Promise((resolve, reject) => {
-      db.run('UPDATE reservations SET status = ? WHERE id = ?', ['cancelled', id], function(err) {
+      db.run('UPDATE reservations SET status = ? WHERE id = ?', ['cancelled', id], function (err) {
         if (err) reject(err);
         else resolve({ changes: this.changes });
       });
@@ -393,7 +415,7 @@ app.post('/api/reservations/:id/arrive', async (req, res) => {
     const { id } = req.params;
 
     const result = await new Promise((resolve, reject) => {
-      db.run('UPDATE reservations SET status = ? WHERE id = ?', ['arrived', id], function(err) {
+      db.run('UPDATE reservations SET status = ? WHERE id = ?', ['arrived', id], function (err) {
         if (err) reject(err);
         else resolve({ changes: this.changes });
       });
@@ -415,7 +437,7 @@ app.post('/api/reservations/:id/arrive', async (req, res) => {
 app.delete('/api/admin/reservations/all', async (req, res) => {
   try {
     const result = await new Promise((resolve, reject) => {
-      db.run('DELETE FROM reservations', [], function(err) {
+      db.run('DELETE FROM reservations', [], function (err) {
         if (err) reject(err);
         else resolve({ changes: this.changes });
       });
@@ -446,9 +468,9 @@ app.post('/api/admin/holidays', async (req, res) => {
     if (!date) {
       return res.status(400).json({ error: '請選擇日期' });
     }
-    
+
     const result = await new Promise((resolve, reject) => {
-      db.run('INSERT INTO holidays (date, reason) VALUES (?, ?)', [date, reason || ''], function(err) {
+      db.run('INSERT INTO holidays (date, reason) VALUES (?, ?)', [date, reason || ''], function (err) {
         if (err) reject(err);
         else resolve({ id: this.lastID });
       });
@@ -469,13 +491,13 @@ app.put('/api/admin/holidays/:id', async (req, res) => {
   try {
     const { date, reason } = req.body;
     const { id } = req.params;
-    
+
     if (!date) {
       return res.status(400).json({ error: '請選擇日期' });
     }
-    
+
     const result = await new Promise((resolve, reject) => {
-      db.run('UPDATE holidays SET date = ?, reason = ? WHERE id = ?', [date, reason || '', id], function(err) {
+      db.run('UPDATE holidays SET date = ?, reason = ? WHERE id = ?', [date, reason || '', id], function (err) {
         if (err) reject(err);
         else resolve({ changes: this.changes });
       });
@@ -501,7 +523,7 @@ app.delete('/api/admin/holidays/:id', async (req, res) => {
     const { id } = req.params;
 
     const result = await new Promise((resolve, reject) => {
-      db.run('DELETE FROM holidays WHERE id = ?', [id], function(err) {
+      db.run('DELETE FROM holidays WHERE id = ?', [id], function (err) {
         if (err) reject(err);
         else resolve({ changes: this.changes });
       });
@@ -565,19 +587,19 @@ app.post('/api/admin/time-slots', async (req, res) => {
     if (!time) {
       return res.status(400).json({ error: '請填寫時間' });
     }
-    
+
     // 驗證時間格式 (HH:MM)
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (!timeRegex.test(time)) {
       return res.status(400).json({ error: '時間格式錯誤，請使用 HH:MM 格式' });
     }
-    
+
     const result = await new Promise((resolve, reject) => {
-      db.run('INSERT INTO time_slots (time, sort_order) VALUES (?, ?)', 
-        [time, sort_order || 0], function(err) {
-        if (err) reject(err);
-        else resolve({ id: this.lastID });
-      });
+      db.run('INSERT INTO time_slots (time, sort_order) VALUES (?, ?)',
+        [time, sort_order || 0], function (err) {
+          if (err) reject(err);
+          else resolve({ id: this.lastID });
+        });
     });
 
     cacheInvalidators.invalidateTimeSlots();
@@ -595,23 +617,23 @@ app.put('/api/admin/time-slots/:id', async (req, res) => {
   try {
     const { time, sort_order } = req.body;
     const { id } = req.params;
-    
+
     if (!time) {
       return res.status(400).json({ error: '請填寫時間' });
     }
-    
+
     // 驗證時間格式 (HH:MM)
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (!timeRegex.test(time)) {
       return res.status(400).json({ error: '時間格式錯誤，請使用 HH:MM 格式' });
     }
-    
+
     const result = await new Promise((resolve, reject) => {
-      db.run('UPDATE time_slots SET time = ?, sort_order = ? WHERE id = ?', 
-        [time, sort_order || 0, id], function(err) {
-        if (err) reject(err);
-        else resolve({ changes: this.changes });
-      });
+      db.run('UPDATE time_slots SET time = ?, sort_order = ? WHERE id = ?',
+        [time, sort_order || 0, id], function (err) {
+          if (err) reject(err);
+          else resolve({ changes: this.changes });
+        });
     });
 
     if (result.changes === 0) {
@@ -634,7 +656,7 @@ app.delete('/api/admin/time-slots/:id', async (req, res) => {
     const { id } = req.params;
 
     const result = await new Promise((resolve, reject) => {
-      db.run('DELETE FROM time_slots WHERE id = ?', [id], function(err) {
+      db.run('DELETE FROM time_slots WHERE id = ?', [id], function (err) {
         if (err) reject(err);
         else resolve({ changes: this.changes });
       });
@@ -657,11 +679,11 @@ app.patch('/api/admin/time-slots/:id/toggle', async (req, res) => {
     const { id } = req.params;
 
     const result = await new Promise((resolve, reject) => {
-      db.run('UPDATE time_slots SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END WHERE id = ?', 
-        [id], function(err) {
-        if (err) reject(err);
-        else resolve({ changes: this.changes });
-      });
+      db.run('UPDATE time_slots SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END WHERE id = ?',
+        [id], function (err) {
+          if (err) reject(err);
+          else resolve({ changes: this.changes });
+        });
     });
 
     if (result.changes === 0) {
@@ -694,7 +716,7 @@ app.use((req, res) => {
 });
 
 // 啟動伺服器函數
-function startServer() {
+function startServer () {
   app.listen(port, '0.0.0.0', () => {
     console.log(`🌐 後端伺服器啟動於 port ${port}`);
     console.log(`伺服器地址: http://0.0.0.0:${port}`);
@@ -736,4 +758,4 @@ process.on('SIGINT', () => {
 });
 
 // 初始化應用
-initializeApp(); 
+initializeApp();

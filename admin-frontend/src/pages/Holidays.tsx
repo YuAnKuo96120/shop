@@ -23,7 +23,7 @@ const Holidays: React.FC = () => {
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [isMultiSelect, setIsMultiSelect] = useState(false);
 
-  const API_BASE = `${config.API_URL}/admin`;
+  const API_BASE = `${config.API_URL}/api/admin`;
 
   useEffect(() => {
     fetchHolidays();
