@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 測試</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .loading {
+            color: blue;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>API 測試頁面</h1>
+    
+    <div class="test-section">
+        <h2>測試 API 端點</h2>
+        <button onclick="testAPI()">測試 API 根路徑</button>
+        <button onclick="testTables()">測試餐桌 API</button>
+        <button onclick="testHolidays()">測試公休日 API</button>
+        <button onclick="testTimeSlots()">測試時段 API</button>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>控制台日誌</h2>
+        <div id="console-log"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('console-log');
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logDiv.appendChild(logEntry);
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        async function testAPI() {
+            log('開始測試 API 根路徑...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/api`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ API 根路徑成功: ${JSON.stringify(data)}`, 'success');
+                    document.getElementById('results').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    log(`❌ API 根路徑失敗: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ API 根路徑錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        async function testTables() {
+            log('開始測試餐桌 API...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/tables`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ 餐桌 API 成功: ${data.length} 個餐桌`, 'success');
+                    document.getElementById('results').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    log(`❌ 餐桌 API 失敗: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 餐桌 API 錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        async function testHolidays() {
+            log('開始測試公休日 API...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/holidays`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ 公休日 API 成功: ${data.length} 個公休日`, 'success');
+                    document.getElementById('results').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    log(`❌ 公休日 API 失敗: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 公休日 API 錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        async function testTimeSlots() {
+            log('開始測試時段 API...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/time-slots`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ 時段 API 成功: ${data.length} 個時段`, 'success');
+                    document.getElementById('results').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    log(`❌ 時段 API 失敗: ${response.status} ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 時段 API 錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        // 頁面載入時自動測試
+        window.onload = function() {
+            log('頁面載入完成，開始自動測試...', 'info');
+            setTimeout(testAPI, 1000);
+        };
+    </script>
+</body>
+</html> 

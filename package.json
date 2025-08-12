@@ -1,0 +1,43 @@
+{
+  "name": "restaurant-system",
+  "version": "1.0.0",
+  "description": "餐廳管理系統",
+  "main": "index.js",
+  "scripts": {
+    "start": "set NODE_OPTIONS=--no-deprecation && concurrently \"npm run start:backend\" \"npm run start:frontend\" \"npm run start:admin\"",
+    "start:all": "set NODE_OPTIONS=--no-deprecation && concurrently \"npm --prefix backend start\" \"npm --prefix frontend start\" \"npm --prefix admin-frontend start\"",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start",
+    "start:admin": "cd admin-frontend && npm start",
+    "install:all": "npm run install:backend && npm run install:frontend && npm run install:admin",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "install:admin": "cd admin-frontend && npm install",
+    "dev": "set NODE_OPTIONS=--no-deprecation && concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:admin\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "dev:admin": "cd admin-frontend && npm start",
+    "build": "npm run build:frontend && npm run build:admin",
+    "build:frontend": "cd frontend && npm run build",
+    "build:admin": "cd admin-frontend && npm run build"
+  },
+  "keywords": [
+    "restaurant",
+    "management",
+    "system",
+    "react",
+    "nodejs",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^3.0.5",
+    "node-fetch": "^3.3.2",
+    "sqlite3": "^5.1.7"
+  }
+}
