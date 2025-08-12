@@ -1,4 +1,4 @@
-// CRACO 配置文件 - 簡化版本
+// CRACO 配置文件 - 極簡版本
 module.exports = {
   webpack: {
     configure: (webpackConfig) => {
@@ -14,16 +14,6 @@ module.exports = {
       ];
 
       return webpackConfig;
-    },
-  },
-  devServer: {
-    port: 3002,
-    host: '0.0.0.0',
-    client: {
-      overlay: {
-        warnings: false,
-        errors: true,
-      },
     },
   },
 }; 
