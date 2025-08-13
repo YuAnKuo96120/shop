@@ -17,13 +17,13 @@ function useAuth() {
   return authed;
 }
 
-function ProtectedRoute({ children }: { children: JSX.Element }) {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const authed = useAuth();
   const location = useLocation();
   if (!authed) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
-  return children;
+  return <>{children}</>;
 }
 
 function Dashboard() {
