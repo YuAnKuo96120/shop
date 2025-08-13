@@ -63,6 +63,7 @@ RAILWAY_DEPLOYMENT.md
 deploy.*
 *.bat
 *.sh
+!railway-start.sh
 
 # 其他
 .cache
