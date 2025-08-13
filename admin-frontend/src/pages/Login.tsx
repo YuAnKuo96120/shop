@@ -5,6 +5,7 @@ import { setToken, clearToken, getToken } from '../auth';
 const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +23,7 @@ const Login: React.FC = () => {
         setError(data.error || '登入失敗');
         return;
       }
-      setToken(data.token);
+      setToken(data.token, remember);
       window.location.href = (process.env.NODE_ENV === 'production' ? '/admin' : '/') + '';
     } catch (e) {
       setError('網路錯誤');
@@ -65,6 +66,10 @@ const Login: React.FC = () => {
               style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #cbd5e1', background: '#f8fafc' }}
             />
           </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, color: '#334155' }}>
+            <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+            記住我（保持登入）
+          </label>
           <button type="submit" disabled={loading} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: 'none', background: '#6366f1', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>
             {loading ? '登入中...' : '登入'}
           </button>

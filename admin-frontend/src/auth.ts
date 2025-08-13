@@ -2,21 +2,32 @@ export const TOKEN_KEY = 'admin_token';
 
 export function getToken (): string | null {
   try {
-    return localStorage.getItem(TOKEN_KEY);
+    // 先讀 localStorage，再讀 sessionStorage
+    const fromLocal = window.localStorage.getItem(TOKEN_KEY);
+    if (fromLocal) return fromLocal;
+    const fromSession = window.sessionStorage.getItem(TOKEN_KEY);
+    return fromSession;
   } catch {
     return null;
   }
 }
 
-export function setToken (token: string) {
+export function setToken (token: string, remember = true) {
   try {
-    localStorage.setItem(TOKEN_KEY, token);
+    if (remember) {
+      window.localStorage.setItem(TOKEN_KEY, token);
+      window.sessionStorage.removeItem(TOKEN_KEY);
+    } else {
+      window.sessionStorage.setItem(TOKEN_KEY, token);
+      window.localStorage.removeItem(TOKEN_KEY);
+    }
   } catch {}
 }
 
 export function clearToken () {
   try {
-    localStorage.removeItem(TOKEN_KEY);
+    window.localStorage.removeItem(TOKEN_KEY);
+    window.sessionStorage.removeItem(TOKEN_KEY);
   } catch {}
 }
 
