@@ -58,8 +58,8 @@ RUN npm ci --only=production
 COPY railway-start.sh /app/railway-start.sh
 RUN chmod +x /app/railway-start.sh
 
-# 暴露端口
-EXPOSE $PORT
+# 暴露端口（Railway 會注入 PORT，此處以預設值給建置期工具識別）
+EXPOSE 3000
 
 # 啟動腳本
 CMD ["/app/railway-start.sh"] 

@@ -20,10 +20,10 @@ sed -i "s/\$PORT/$PORT/g" /etc/nginx/nginx.conf
 echo "🌐 啟動 nginx..."
 nginx
 
-# 啟動後端服務
+# 啟動後端服務（固定在 3001，避免與 Nginx 的 $PORT 衝突）
 echo "⚙️  啟動後端服務..."
 cd /app/backend
-npm start &
+PORT=3001 NODE_OPTIONS=--no-deprecation node index.js &
 
 echo "🎉 所有服務已啟動完成！"
 echo "🌐 前端：http://localhost:$PORT"
