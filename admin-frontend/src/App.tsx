@@ -2,10 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import config from './config';
 import './App.css';
-import Reservations from './pages/Reservations';
-import Tables from './pages/Tables';
-import Holidays from './pages/Holidays';
-import TimeSlots from './pages/TimeSlots';
+import React, { Suspense, lazy } from 'react';
+const Reservations = lazy(() => import('./pages/Reservations'));
+const Tables = lazy(() => import('./pages/Tables'));
+const Holidays = lazy(() => import('./pages/Holidays'));
+const TimeSlots = lazy(() => import('./pages/TimeSlots'));
 
 function Dashboard() {
   return (
@@ -44,15 +45,17 @@ function WithBackHome({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <Router basename={config.BASE_PATH}>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/reservations" element={<WithBackHome><Reservations /></WithBackHome>} />
-        <Route path="/tables" element={<WithBackHome><Tables /></WithBackHome>} />
-        <Route path="/time-slots" element={<WithBackHome><TimeSlots /></WithBackHome>} />
-        <Route path="/holidays" element={<WithBackHome><Holidays /></WithBackHome>} />
-        <Route path="/staff" element={<WithBackHome><Placeholder title="員工管理" /></WithBackHome>} />
-        <Route path="/report" element={<WithBackHome><Placeholder title="報表分析" /></WithBackHome>} />
-      </Routes>
+      <Suspense fallback={<div style={{ textAlign: 'center', marginTop: 80 }}>載入中...</div>}>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/reservations" element={<WithBackHome><Reservations /></WithBackHome>} />
+          <Route path="/tables" element={<WithBackHome><Tables /></WithBackHome>} />
+          <Route path="/time-slots" element={<WithBackHome><TimeSlots /></WithBackHome>} />
+          <Route path="/holidays" element={<WithBackHome><Holidays /></WithBackHome>} />
+          <Route path="/staff" element={<WithBackHome><Placeholder title="員工管理" /></WithBackHome>} />
+          <Route path="/report" element={<WithBackHome><Placeholder title="報表分析" /></WithBackHome>} />
+        </Routes>
+      </Suspense>
     </Router>
   );
 }

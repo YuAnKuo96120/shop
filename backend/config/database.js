@@ -1,9 +1,9 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-// 資料庫配置
+// 資料庫配置（支援環境變數 DB_PATH，例如 /data/restaurant.db）
 const DB_CONFIG = {
-  path: path.join(__dirname, '../restaurant.db'),
+  path: process.env.DB_PATH || path.join(__dirname, '../restaurant.db'),
   mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
   verbose: process.env.NODE_ENV === 'development',
 };
@@ -24,7 +24,7 @@ function createDatabase () {
         console.error('資料庫連線失敗:', err.message);
         reject(err);
       } else {
-        console.log('✅ 已連接 SQLite 資料庫');
+        console.log(`✅ 已連接 SQLite 資料庫：${DB_CONFIG.path}`);
         resolve(db);
       }
     });

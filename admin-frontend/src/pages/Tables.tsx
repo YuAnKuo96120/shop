@@ -151,8 +151,13 @@ const Tables: React.FC = () => {
   
   const handleDelete = async (id: number) => {
     if (!window.confirm('確定要刪除這張餐桌嗎？')) return;
-          await fetch(`${config.API_URL}/api/admin/tables/${id}`, { method: 'DELETE' });
-    fetchTables();
+    try {
+      const resp = await fetch(`${config.API_URL}/api/admin/tables/${id}`, { method: 'DELETE' });
+      if (!resp.ok) throw new Error('刪除失敗');
+      await fetchTables();
+    } catch (e) {
+      alert('刪除失敗，請稍後重試');
+    }
   };
 
   const handleDeleteAll = async () => {
@@ -180,19 +185,27 @@ const Tables: React.FC = () => {
       return;
     }
     if (editTable) {
-              await fetch(`${config.API_URL}/api/admin/tables/${editTable.id}`, {
+      const resp = await fetch(`${config.API_URL}/api/admin/tables/${editTable.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       });
+      if (!resp.ok) {
+        setFormError('更新失敗');
+        return;
+      }
     } else {
       // 新增時設定排序順序為最後
       const maxSortOrder = Math.max(...tables.map(t => t.sort_order || 0), 0);
-                             await fetch(`${config.API_URL}/api/admin/tables`, {
+      const resp = await fetch(`${config.API_URL}/api/admin/tables`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, sort_order: maxSortOrder + 1 })
       });
+      if (!resp.ok) {
+        setFormError('新增失敗');
+        return;
+      }
     }
     setShowModal(false);
     fetchTables();

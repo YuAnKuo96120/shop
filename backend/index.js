@@ -18,8 +18,19 @@ app.use(express.json({ limit: '1mb' }));
 // 提供靜態與 SPA 服務
 const publicDir = path.join(__dirname, 'public');
 const adminDir = path.join(publicDir, 'admin');
-app.use(express.static(publicDir, { maxAge: '1y', index: false }));
-app.use('/admin', express.static(adminDir, { maxAge: '1y', index: false }));
+// 靜態資源快取與安全標頭
+const staticOptions = {
+  index: false,
+  setHeaders: (res, filePath) => {
+    if (/\.(js|css|woff2?|ttf|eot|png|jpg|jpeg|gif|svg)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+};
+app.use(express.static(publicDir, staticOptions));
+app.use('/admin', express.static(adminDir, staticOptions));
 
 // 全域變數
 let db = null;
