@@ -5,6 +5,8 @@ const { configureSecurity } = require('./middleware/security');
 const { cachedFunctions, cacheInvalidators } = require('./utils/cache');
 
 const app = express();
+// 在 Railway 等反向代理後方，需啟用 trust proxy 以正確取得用戶 IP
+app.set('trust proxy', 1);
 const port = process.env.PORT || 3001;
 
 // 配置安全中間件
