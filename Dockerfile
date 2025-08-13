@@ -1,5 +1,5 @@
 # Railway 極簡版 Dockerfile
-FROM node:18-alpine
+FROM mirror.gcr.io/library/node:18-alpine
 
 # 設定工作目錄
 WORKDIR /app
@@ -11,7 +11,9 @@ COPY admin-frontend/package*.json ./admin-frontend/
 COPY backend/package*.json ./backend/
 
 # 設定 npm 配置
-RUN npm config set registry https://registry.npmjs.org/
+RUN npm config set registry https://registry.npmjs.org/ \
+  && npm config set fetch-retries 5 \
+  && npm config set fetch-retry-maxtimeout 120000
 
 # 安裝前端依賴
 WORKDIR /app/frontend && npm ci --no-audit --no-fund
