@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Holidays.css';
 import config from '../config';
+import { fetchWithAuth } from '../auth';
 
 interface Holiday {
   id: number;
@@ -31,7 +32,7 @@ const Holidays: React.FC = () => {
 
   const fetchHolidays = async () => {
     try {
-      const response = await fetch(`${API_BASE}/holidays`);
+      const response = await fetchWithAuth(`${API_BASE}/holidays`);
       if (response.ok) {
         const data = await response.json();
         setHolidays(data);
@@ -53,7 +54,7 @@ const Holidays: React.FC = () => {
       if (editingHoliday) {
         // 編輯單個公休日
         const url = `${API_BASE}/holidays/${editingHoliday.id}`;
-        const response = await fetch(url, {
+        const response = await fetchWithAuth(url, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -75,7 +76,7 @@ const Holidays: React.FC = () => {
       } else {
         // 批量新增公休日
         const promises = selectedDates.map(date => 
-          fetch(`${API_BASE}/holidays`, {
+          fetchWithAuth(`${API_BASE}/holidays`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -126,7 +127,7 @@ const Holidays: React.FC = () => {
     if (!window.confirm('確定要刪除此公休日嗎？')) return;
 
     try {
-      const response = await fetch(`${API_BASE}/holidays/${id}`, {
+      const response = await fetchWithAuth(`${API_BASE}/holidays/${id}`, {
         method: 'DELETE',
       });
 

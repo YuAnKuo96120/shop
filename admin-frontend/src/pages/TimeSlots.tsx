@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './TimeSlots.css';
 import config from '../config';
+import { fetchWithAuth } from '../auth';
 
 interface TimeSlot {
   id: number;
@@ -31,7 +32,7 @@ const TimeSlots: React.FC = () => {
   const loadTimeSlots = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/admin/time-slots`);
+      const response = await fetchWithAuth(`${API_BASE}/api/admin/time-slots`);
       if (!response.ok) throw new Error('載入失敗');
       const data = await response.json();
       setTimeSlots(data);
@@ -46,7 +47,7 @@ const TimeSlots: React.FC = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_BASE}/api/admin/time-slots`, {
+      const response = await fetchWithAuth(`${API_BASE}/api/admin/time-slots`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -70,7 +71,7 @@ const TimeSlots: React.FC = () => {
     if (!editingSlot) return;
     
     try {
-      const response = await fetch(`${API_BASE}/api/admin/time-slots/${editingSlot.id}`, {
+      const response = await fetchWithAuth(`${API_BASE}/api/admin/time-slots/${editingSlot.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -94,7 +95,7 @@ const TimeSlots: React.FC = () => {
     if (!window.confirm('確定要刪除此時段嗎？')) return;
     
     try {
-      const response = await fetch(`${API_BASE}/api/admin/time-slots/${id}`, {
+      const response = await fetchWithAuth(`${API_BASE}/api/admin/time-slots/${id}`, {
         method: 'DELETE'
       });
       
@@ -111,7 +112,7 @@ const TimeSlots: React.FC = () => {
 
   const handleToggleStatus = async (id: number) => {
     try {
-      const response = await fetch(`${API_BASE}/api/admin/time-slots/${id}/toggle`, {
+      const response = await fetchWithAuth(`${API_BASE}/api/admin/time-slots/${id}/toggle`, {
         method: 'PATCH'
       });
       

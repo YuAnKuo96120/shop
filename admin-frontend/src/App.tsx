@@ -1,12 +1,30 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import config from './config';
 import './App.css';
-import React, { Suspense, lazy } from 'react';
+import { getToken } from './auth';
 const Reservations = lazy(() => import('./pages/Reservations'));
 const Tables = lazy(() => import('./pages/Tables'));
 const Holidays = lazy(() => import('./pages/Holidays'));
 const TimeSlots = lazy(() => import('./pages/TimeSlots'));
+const Login = lazy(() => import('./pages/Login'));
+
+function useAuth() {
+  const [authed, setAuthed] = useState<boolean>(!!getToken());
+  useEffect(() => {
+    setAuthed(!!getToken());
+  }, []);
+  return authed;
+}
+
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+  const authed = useAuth();
+  const location = useLocation();
+  if (!authed) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+  return children;
+}
 
 function Dashboard() {
   return (
@@ -19,6 +37,7 @@ function Dashboard() {
         <Link to="/holidays" className="admin-btn">公休日管理</Link>
         <Link to="/staff" className="admin-btn">員工管理</Link>
         <Link to="/report" className="admin-btn">報表分析</Link>
+        <Link to="/login" className="admin-btn" style={{ background: 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)' }}>登入/登出</Link>
       </div>
     </div>
   );
@@ -48,12 +67,13 @@ function App() {
       <Suspense fallback={<div style={{ textAlign: 'center', marginTop: 80 }}>載入中...</div>}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/reservations" element={<WithBackHome><Reservations /></WithBackHome>} />
-          <Route path="/tables" element={<WithBackHome><Tables /></WithBackHome>} />
-          <Route path="/time-slots" element={<WithBackHome><TimeSlots /></WithBackHome>} />
-          <Route path="/holidays" element={<WithBackHome><Holidays /></WithBackHome>} />
-          <Route path="/staff" element={<WithBackHome><Placeholder title="員工管理" /></WithBackHome>} />
-          <Route path="/report" element={<WithBackHome><Placeholder title="報表分析" /></WithBackHome>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/reservations" element={<ProtectedRoute><WithBackHome><Reservations /></WithBackHome></ProtectedRoute>} />
+          <Route path="/tables" element={<ProtectedRoute><WithBackHome><Tables /></WithBackHome></ProtectedRoute>} />
+          <Route path="/time-slots" element={<ProtectedRoute><WithBackHome><TimeSlots /></WithBackHome></ProtectedRoute>} />
+          <Route path="/holidays" element={<ProtectedRoute><WithBackHome><Holidays /></WithBackHome></ProtectedRoute>} />
+          <Route path="/staff" element={<ProtectedRoute><WithBackHome><Placeholder title="員工管理" /></WithBackHome></ProtectedRoute>} />
+          <Route path="/report" element={<ProtectedRoute><WithBackHome><Placeholder title="報表分析" /></WithBackHome></ProtectedRoute>} />
         </Routes>
       </Suspense>
     </Router>

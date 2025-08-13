@@ -19,6 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import config from '../config';
+import { fetchWithAuth } from '../auth';
 
 const statusMap: Record<string, string> = {
   available: '可用',
@@ -124,7 +125,7 @@ const Tables: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-              const res = await fetch(`${config.API_URL}/api/admin/tables`);
+      const res = await fetchWithAuth(`${config.API_URL}/api/admin/tables`);
       const data = await res.json();
       setTables(data);
     } catch {
@@ -152,7 +153,7 @@ const Tables: React.FC = () => {
   const handleDelete = async (id: number) => {
     if (!window.confirm('確定要刪除這張餐桌嗎？')) return;
     try {
-      const resp = await fetch(`${config.API_URL}/api/admin/tables/${id}`, { method: 'DELETE' });
+      const resp = await fetchWithAuth(`${config.API_URL}/api/admin/tables/${id}`, { method: 'DELETE' });
       if (!resp.ok) throw new Error('刪除失敗');
       await fetchTables();
     } catch (e) {
@@ -164,7 +165,7 @@ const Tables: React.FC = () => {
     if (!window.confirm('⚠️ 警告：此操作將刪除所有餐桌！\n\n確定要刪除全部餐桌嗎？此操作無法撤銷！')) return;
     
     try {
-      const response = await fetch(`${config.API_URL}/api/admin/tables`, { method: 'DELETE' });
+      const response = await fetchWithAuth(`${config.API_URL}/api/admin/tables`, { method: 'DELETE' });
       const result = await response.json();
       
       if (result.success) {
@@ -185,7 +186,7 @@ const Tables: React.FC = () => {
       return;
     }
     if (editTable) {
-      const resp = await fetch(`${config.API_URL}/api/admin/tables/${editTable.id}`, {
+      const resp = await fetchWithAuth(`${config.API_URL}/api/admin/tables/${editTable.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
@@ -197,7 +198,7 @@ const Tables: React.FC = () => {
     } else {
       // 新增時設定排序順序為最後
       const maxSortOrder = Math.max(...tables.map(t => t.sort_order || 0), 0);
-      const resp = await fetch(`${config.API_URL}/api/admin/tables`, {
+      const resp = await fetchWithAuth(`${config.API_URL}/api/admin/tables`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, sort_order: maxSortOrder + 1 })
@@ -233,7 +234,7 @@ const Tables: React.FC = () => {
 
         // 更新資料庫中的排序順序
         const updatePromises = updatedTables.map((table) => 
-          fetch(`${config.API_URL}/api/admin/tables/${table.id}`, {
+          fetchWithAuth(`${config.API_URL}/api/admin/tables/${table.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sort_order: table.sort_order })

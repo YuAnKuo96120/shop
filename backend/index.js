@@ -3,6 +3,7 @@ const path = require('path');
 const { createDatabase, initDatabase } = require('./config/database');
 const { configureSecurity } = require('./middleware/security');
 const { cachedFunctions, cacheInvalidators } = require('./utils/cache');
+const { requireAdmin, loginHandler, meHandler } = require('./middleware/auth');
 
 const app = express();
 // 在 Railway 等反向代理後方，需啟用 trust proxy 以正確取得用戶 IP
@@ -81,6 +82,18 @@ app.get('/api', (req, res) => {
     },
     timestamp: new Date().toISOString(),
   });
+});
+
+// 管理員登入與狀態
+app.post('/api/admin/login', loginHandler);
+app.get('/api/admin/me', meHandler);
+
+// 自動保護 /api/admin/* 端點（排除 login 與 me）
+app.use('/api/admin', (req, res, next) => {
+  if (req.path === '/login' || req.path === '/me') {
+    return next();
+  }
+  return requireAdmin(req, res, next);
 });
 
 // 新增訂位
@@ -434,8 +447,8 @@ app.patch('/api/admin/tables/:id/position', async (req, res) => {
   }
 });
 
-// 取消訂位
-app.delete('/api/reservations/:id', async (req, res) => {
+// 取消訂位（需管理員權限）
+app.delete('/api/reservations/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -458,8 +471,8 @@ app.delete('/api/reservations/:id', async (req, res) => {
   }
 });
 
-// 標記到店
-app.post('/api/reservations/:id/arrive', async (req, res) => {
+// 標記到店（需管理員權限）
+app.post('/api/reservations/:id/arrive', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 
