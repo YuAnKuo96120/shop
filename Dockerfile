@@ -15,9 +15,11 @@ RUN npm config set registry https://registry.npmjs.org/ \
   && npm config set fetch-retries 5 \
   && npm config set fetch-retry-maxtimeout 120000
 
-# 安裝前端依賴
-WORKDIR /app/frontend && npm ci --no-audit --no-fund
-WORKDIR /app/admin-frontend && npm ci --no-audit --no-fund
+# 安裝前端依賴（強制包含 devDependencies 以取得 craco 等建置工具）
+WORKDIR /app/frontend
+RUN npm ci --include=dev --no-audit --no-fund || npm install --include=dev --no-audit --no-fund
+WORKDIR /app/admin-frontend
+RUN npm ci --include=dev --no-audit --no-fund || npm install --include=dev --no-audit --no-fund
 
 # 回到根目錄並複製源碼
 WORKDIR /app
@@ -25,10 +27,10 @@ COPY . .
 
 # 建置前端與管理前端
 WORKDIR /app/frontend
-RUN npm run build
+RUN NODE_OPTIONS=--max-old-space-size=512 npm run build
 
 WORKDIR /app/admin-frontend
-RUN PUBLIC_URL=/admin npm run build
+RUN NODE_OPTIONS=--max-old-space-size=512 PUBLIC_URL=/admin npm run build
 
 # 安裝後端依賴（僅生產依賴）
 WORKDIR /app/backend
