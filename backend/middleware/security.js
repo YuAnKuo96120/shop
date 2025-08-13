@@ -37,11 +37,11 @@ const securityConfig = {
 
   // API 速率限制（更嚴格）
   apiRateLimit: {
-    windowMs: 15 * 60 * 1000, // 15 分鐘
-    max: 1000, // 暫時增加限制用於測試
+    windowMs: 5 * 60 * 1000, // 5 分鐘
+    max: 5000, // 放寬一般 API 限制
     message: {
       error: 'API 請求過於頻繁，請稍後再試',
-      retryAfter: '15 分鐘',
+      retryAfter: '5 分鐘',
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -49,11 +49,11 @@ const securityConfig = {
 
   // 訂位 API 速率限制（防止濫用）
   reservationRateLimit: {
-    windowMs: 60 * 60 * 1000, // 1 小時
-    max: 5, // 每個 IP 在 1 小時內最多 5 個訂位請求
+    windowMs: 15 * 60 * 1000, // 15 分鐘
+    max: 20, // 放寬：15 分鐘 20 次
     message: {
       error: '訂位請求過於頻繁，請稍後再試',
-      retryAfter: '1 小時',
+      retryAfter: '15 分鐘',
     },
     standardHeaders: true,
     legacyHeaders: false,
