@@ -13,8 +13,11 @@ configureSecurity(app);
 // 解析 JSON
 app.use(express.json({ limit: '1mb' }));
 
-// 提供靜態文件服務
-app.use(express.static(path.join(__dirname)));
+// 提供靜態與 SPA 服務
+const publicDir = path.join(__dirname, 'public');
+const adminDir = path.join(publicDir, 'admin');
+app.use(express.static(publicDir, { maxAge: '1y', index: false }));
+app.use('/admin', express.static(adminDir, { maxAge: '1y', index: false }));
 
 // 全域變數
 let db = null;
@@ -38,7 +41,7 @@ async function initializeApp () {
 
 // 測試 API
 app.get('/', (req, res) => {
-  res.send('餐廳訂位系統後端運作中');
+  res.sendFile(path.join(publicDir, 'index.html'));
 });
 
 // 健康檢查端點
@@ -711,6 +714,14 @@ app.get('/api/time-slots', async (req, res) => {
 
 // 404 處理
 app.use((req, res) => {
+  // SPA fallback: /admin 與其子路由回傳 admin index.html
+  if (req.path.startsWith('/admin')) {
+    return res.sendFile(path.join(publicDir, 'admin', 'index.html'));
+  }
+  // SPA fallback: 前台
+  if (!req.path.startsWith('/api')) {
+    return res.sendFile(path.join(publicDir, 'index.html'));
+  }
   console.log(`404 - 找不到路徑: ${req.path}`);
   res.status(404).json({ error: '找不到路徑', path: req.path });
 });

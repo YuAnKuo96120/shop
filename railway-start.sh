@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "🚂 正在啟動 Railway 服務..."
 
@@ -10,20 +10,18 @@ fi
 
 echo "📡 服務將在端口 $PORT 上運行"
 
-# 創建必要的目錄
-mkdir -p /var/log/nginx /var/cache/nginx
+echo "🔧 準備提供靜態檔案與 API..."
 
-# 設定 nginx 配置中的端口
-sed -i "s/\$PORT/$PORT/g" /etc/nginx/nginx.conf
+# 將建置好的前端檔案複製到 backend 的 public 內，讓 Express 直接服務
+mkdir -p /app/backend/public
+mkdir -p /app/backend/public/admin
+cp -r /app/frontend/build/* /app/backend/public/
+cp -r /app/admin-frontend/build/* /app/backend/public/admin/
 
-# 啟動 nginx
-echo "🌐 啟動 nginx..."
-nginx
-
-# 啟動後端服務（固定在 3001，避免與 Nginx 的 $PORT 衝突）
+# 啟動後端（使用 Railway 提供的 $PORT 作為對外端口）
 echo "⚙️  啟動後端服務..."
 cd /app/backend
-PORT=3001 NODE_OPTIONS=--no-deprecation node index.js &
+PORT="$PORT" NODE_OPTIONS=--no-deprecation node index.js &
 
 echo "🎉 所有服務已啟動完成！"
 echo "🌐 前端：http://localhost:$PORT"

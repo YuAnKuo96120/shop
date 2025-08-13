@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import config from './config';
 import './App.css';
 import Reservations from './pages/Reservations';
 import Tables from './pages/Tables';
@@ -42,7 +43,7 @@ function WithBackHome({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <Router>
+    <Router basename={config.BASE_PATH}>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/reservations" element={<WithBackHome><Reservations /></WithBackHome>} />
