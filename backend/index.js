@@ -300,8 +300,8 @@ app.put('/api/admin/tables/:id', async (req, res) => {
     const { id } = req.params;
 
     const result = await new Promise((resolve, reject) => {
-      db.run('UPDATE tables SET name = ?, capacity = ?, status = ?, area = ?, sort_order = ? WHERE id = ?',
-        [name, capacity, status, area || 'main', sort_order || null, id], function (err) {
+      db.run('UPDATE tables SET name = ?, capacity = ?, status = ?, area = ?, sort_order = COALESCE(?, sort_order) WHERE id = ?',
+        [name, capacity, status, area || 'main', (typeof sort_order === 'number' ? sort_order : null), id], function (err) {
           if (err) reject(err);
           else resolve({ changes: this.changes });
         });
@@ -315,6 +315,39 @@ app.put('/api/admin/tables/:id', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error('更新餐桌失敗:', error);
+    res.status(500).json({ error: '更新失敗' });
+  }
+});
+
+// 局部更新餐桌欄位（支援僅更新 sort_order 等單一欄位）
+app.patch('/api/admin/tables/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const allowedFields = ['name', 'capacity', 'status', 'area', 'sort_order', 'x', 'y'];
+    const entries = Object.entries(req.body).filter(([key, value]) => allowedFields.includes(key) && value !== undefined);
+
+    if (entries.length === 0) {
+      return res.status(400).json({ error: '沒有可更新的欄位' });
+    }
+
+    const setClause = entries.map(([key]) => `${key} = ?`).join(', ');
+    const values = entries.map(([, value]) => value);
+
+    const result = await new Promise((resolve, reject) => {
+      db.run(`UPDATE tables SET ${setClause} WHERE id = ?`, [...values, id], function (err) {
+        if (err) reject(err);
+        else resolve({ changes: this.changes });
+      });
+    });
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: '查無此餐桌' });
+    }
+
+    cacheInvalidators.invalidateTables();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('部分更新餐桌失敗:', error);
     res.status(500).json({ error: '更新失敗' });
   }
 });
