@@ -89,10 +89,9 @@ function configureSecurity (app) {
   // 創建速率限制器
   const limiters = createRateLimiters();
 
-  // 應用速率限制
+  // 僅對 API 路由套用速率限制，避免靜態資源被誤計入
   app.use('/api/reservations', limiters.reservation); // 訂位 API 特殊限制
   app.use('/api', limiters.api); // 一般 API 限制
-  app.use('/', limiters.general); // 一般請求限制
 
   // CORS 配置
   app.use((req, res, next) => {
