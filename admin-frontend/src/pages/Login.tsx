@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import config from '../config';
 import { setToken, clearToken, getToken } from '../auth';
 
 const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [remember, setRemember] = useState(true);
+  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +27,8 @@ const Login: React.FC = () => {
         return;
       }
       setToken(data.token, remember);
-      window.location.href = (process.env.NODE_ENV === 'production' ? '/admin' : '/') + '';
+      const from = (location.state as any)?.from?.pathname || '/';
+      navigate(from, { replace: true });
     } catch (e) {
       setError('網路錯誤');
     } finally {

@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import config from './config';
 import './App.css';
-import { getToken } from './auth';
+import { getToken, clearToken, fetchWithAuth } from './auth';
 const Reservations = lazy(() => import('./pages/Reservations'));
 const Tables = lazy(() => import('./pages/Tables'));
 const Holidays = lazy(() => import('./pages/Holidays'));
@@ -10,9 +10,41 @@ const TimeSlots = lazy(() => import('./pages/TimeSlots'));
 const Login = lazy(() => import('./pages/Login'));
 
 function useAuth() {
-  const [authed, setAuthed] = useState<boolean>(!!getToken());
+  const [authed, setAuthed] = useState<boolean>(false);
   useEffect(() => {
-    setAuthed(!!getToken());
+    let mounted = true;
+    async function verify() {
+      const token = getToken();
+      if (!token) {
+        if (mounted) setAuthed(false);
+        return;
+      }
+      try {
+        const res = await fetchWithAuth(`${config.API_URL || ''}/api/admin/me`);
+        if (!mounted) return;
+        if (res.ok) {
+          setAuthed(true);
+        } else {
+          clearToken();
+          setAuthed(false);
+        }
+      } catch {
+        if (!mounted) return;
+        setAuthed(false);
+      }
+    }
+    verify();
+    // 監聽跨分頁登出/登入
+    function onStorage(e: StorageEvent) {
+      if (e.key === 'admin_token') {
+        verify();
+      }
+    }
+    window.addEventListener('storage', onStorage);
+    return () => {
+      mounted = false;
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
   return authed;
 }
@@ -22,6 +54,16 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   if (!authed) {
     return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+  return <>{children}</>;
+}
+
+function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
+  const authed = useAuth();
+  const location = useLocation();
+  if (authed) {
+    const from = (location.state as any)?.from?.pathname || '/';
+    return <Navigate to={from} replace />;
   }
   return <>{children}</>;
 }
@@ -37,7 +79,7 @@ function Dashboard() {
         <Link to="/holidays" className="admin-btn">公休日管理</Link>
         <Link to="/staff" className="admin-btn">員工管理</Link>
         <Link to="/report" className="admin-btn">報表分析</Link>
-        <Link to="/login" className="admin-btn" style={{ background: 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)' }}>登入/登出</Link>
+        <Link to="/logout" className="admin-btn" style={{ background: 'linear-gradient(90deg, #ef4444 0%, #f97316 100%)' }}>登入/登出</Link>
       </div>
     </div>
   );
@@ -61,13 +103,23 @@ function WithBackHome({ children }: { children: React.ReactNode }) {
   );
 }
 
+function Logout() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    clearToken();
+    navigate('/login', { replace: true });
+  }, [navigate]);
+  return null;
+}
+
 function App() {
   return (
     <Router basename={config.BASE_PATH}>
       <Suspense fallback={<div style={{ textAlign: 'center', marginTop: 80 }}>載入中...</div>}>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+          <Route path="/logout" element={<Logout />} />
           <Route path="/reservations" element={<ProtectedRoute><WithBackHome><Reservations /></WithBackHome></ProtectedRoute>} />
           <Route path="/tables" element={<ProtectedRoute><WithBackHome><Tables /></WithBackHome></ProtectedRoute>} />
           <Route path="/time-slots" element={<ProtectedRoute><WithBackHome><TimeSlots /></WithBackHome></ProtectedRoute>} />
