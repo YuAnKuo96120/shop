@@ -27,8 +27,10 @@ const Login: React.FC = () => {
         return;
       }
       setToken(data.token, remember);
-      const from = (location.state as any)?.from?.pathname || '/';
-      navigate(from, { replace: true });
+      const rawFrom = (location.state as any)?.from?.pathname || '/';
+      const base = (config as any).BASE_PATH || '';
+      const normalized = base && rawFrom.startsWith(base) ? rawFrom.slice(base.length) || '/' : rawFrom;
+      navigate(normalized, { replace: true });
     } catch (e) {
       setError('網路錯誤');
     } finally {

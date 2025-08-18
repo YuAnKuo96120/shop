@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import config from './config';
 import './App.css';
-import { getToken, clearToken, fetchWithAuth } from './auth';
+import { getToken, clearToken, fetchWithAuth, TOKEN_CHANGE_EVENT } from './auth';
 const Reservations = lazy(() => import('./pages/Reservations'));
 const Tables = lazy(() => import('./pages/Tables'));
 const Holidays = lazy(() => import('./pages/Holidays'));
@@ -40,10 +40,13 @@ function useAuth() {
         verify();
       }
     }
+    function onTokenChange() { verify(); }
     window.addEventListener('storage', onStorage);
+    window.addEventListener(TOKEN_CHANGE_EVENT, onTokenChange as EventListener);
     return () => {
       mounted = false;
       window.removeEventListener('storage', onStorage);
+      window.removeEventListener(TOKEN_CHANGE_EVENT, onTokenChange as EventListener);
     };
   }, []);
   return authed;
@@ -62,8 +65,10 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   const authed = useAuth();
   const location = useLocation();
   if (authed) {
-    const from = (location.state as any)?.from?.pathname || '/';
-    return <Navigate to={from} replace />;
+    const rawFrom = (location.state as any)?.from?.pathname || '/';
+    const base = config.BASE_PATH || '';
+    const normalized = base && rawFrom.startsWith(base) ? rawFrom.slice(base.length) || '/' : rawFrom;
+    return <Navigate to={normalized} replace />;
   }
   return <>{children}</>;
 }

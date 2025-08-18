@@ -1,4 +1,11 @@
 export const TOKEN_KEY = 'admin_token';
+export const TOKEN_CHANGE_EVENT = 'admin_token_change';
+
+function notifyTokenChange () {
+  try {
+    window.dispatchEvent(new Event(TOKEN_CHANGE_EVENT));
+  } catch {}
+}
 
 export function getToken (): string | null {
   try {
@@ -21,6 +28,7 @@ export function setToken (token: string, remember = true) {
       window.sessionStorage.setItem(TOKEN_KEY, token);
       window.localStorage.removeItem(TOKEN_KEY);
     }
+    notifyTokenChange();
   } catch {}
 }
 
@@ -28,6 +36,7 @@ export function clearToken () {
   try {
     window.localStorage.removeItem(TOKEN_KEY);
     window.sessionStorage.removeItem(TOKEN_KEY);
+    notifyTokenChange();
   } catch {}
 }
 
